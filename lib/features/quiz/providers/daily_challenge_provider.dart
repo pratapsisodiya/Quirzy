@@ -239,6 +239,29 @@ class DailyChallengeService {
     return questions;
   }
 
+  /// The full local question pool (all cached questions, not just today's
+  /// 10), as typed models — the data source for the practice feed (ScrollPrep).
+  Future<List<DailyChallengeQuestion>> getQuestionPool() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = await _getCachedQuestions(prefs);
+    final questions = <DailyChallengeQuestion>[];
+    for (var i = 0; i < cached.length; i++) {
+      final q = cached[i];
+      questions.add(
+        DailyChallengeQuestion(
+          id: q['id']?.toString() ?? 'pool_$i',
+          questionText: (q['questionText'] ?? q['question'] ?? '').toString(),
+          options: List<String>.from(q['options'] ?? const ['A', 'B', 'C', 'D']),
+          correctIndex: q['correctIndex'] ?? q['correctAnswer'] ?? 0,
+          explanation: (q['explanation'] ?? '').toString(),
+          originalQuizId: q['originalQuizId']?.toString() ?? q['quizId']?.toString(),
+          topic: q['topic']?.toString(),
+        ),
+      );
+    }
+    return questions;
+  }
+
   /// Get cached questions from quiz history (SharedPreferences)
   Future<List<Map<String, dynamic>>> _getCachedQuestions(
     SharedPreferences prefs,

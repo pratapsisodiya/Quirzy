@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/providers/providers.dart';
 import 'home_screen.dart';
+import '../../feed/screens/feed_screen.dart';
 import '../../flashcards/screens/screens.dart';
 import '../../profile/screens/screens.dart';
 import '../../onboarding/screens/screens.dart';
@@ -44,8 +45,9 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     NotificationService().scheduleHourlyNotification();
   }
 
-  // Screens list
+  // Screens list — Practice (the ScrollPrep-style feed) is the default tab.
   List<Widget> get _screens => const [
+    RepaintBoundary(child: FeedScreen()),
     RepaintBoundary(child: HomeScreen()),
     RepaintBoundary(child: MockTestSetupScreen()),
     RepaintBoundary(child: HistoryScreen()),

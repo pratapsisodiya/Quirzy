@@ -52,6 +52,11 @@ class QuirzyNavigationBar extends StatelessWidget {
         height: 80,
         destinations: const [
           NavigationDestination(
+            icon: Icon(Icons.bolt_outlined),
+            selectedIcon: Icon(Icons.bolt_rounded),
+            label: 'Practice',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.grid_view_rounded),
             selectedIcon: Icon(Icons.grid_view_rounded),
             label: 'Home',
