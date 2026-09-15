@@ -24,6 +24,7 @@ import '../providers/home_stats_provider.dart';
 import '../../../shared/providers/exam_provider.dart';
 import '../../onboarding/screens/exam_selection_screen.dart';
 import '../../../shared/services/smart_notification_service.dart';
+import '../../../shared/services/connectivity_service.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -395,6 +396,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                 child: const Text('OK'),
               ),
             ],
+          ),
+        );
+      }
+      return;
+    }
+
+    final isOnline = await ref.read(connectivityServiceProvider).checkIsOnline();
+    if (!isOnline) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You\'re offline — connect to the internet to add a new topic.'),
+            backgroundColor: Colors.red,
           ),
         );
       }

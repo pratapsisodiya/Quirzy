@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/theme/practice_theme.dart';
 import '../models/feed_models.dart';
 import '../providers/feed_providers.dart';
+import '../services/practice_content_service.dart';
 
 IconData _iconForLane(FeedLaneType type) {
   switch (type) {
@@ -110,14 +111,47 @@ class LaneSwitcherSheet extends ConsumerWidget {
                             color: selected ? PracticeTheme.primary : (isDark ? Colors.white : Colors.black87),
                           ),
                         ),
-                        trailing: Text(
-                          '${lane.count}',
-                          style: GoogleFonts.plusJakartaSans(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white38 : Colors.black38,
-                          ),
-                        ),
+                        trailing: lane.type == FeedLaneType.topic
+                            ? Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${lane.count}',
+                                    style: GoogleFonts.plusJakartaSans(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark ? Colors.white38 : Colors.black38,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    visualDensity: VisualDensity.compact,
+                                    tooltip: lane.downloaded ? 'Downloaded — won\'t be removed' : 'Keep offline',
+                                    onPressed: () async {
+                                      HapticFeedback.selectionClick();
+                                      await ref
+                                          .read(practiceContentServiceProvider)
+                                          .setDownloaded(lane.label, !lane.downloaded);
+                                      ref.invalidate(feedLanesProvider);
+                                    },
+                                    icon: Icon(
+                                      lane.downloaded ? Icons.check_circle_rounded : Icons.download_rounded,
+                                      size: 20,
+                                      color: lane.downloaded
+                                          ? PracticeTheme.primary
+                                          : (isDark ? Colors.white38 : Colors.black38),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Text(
+                                '${lane.count}',
+                                style: GoogleFonts.plusJakartaSans(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDark ? Colors.white38 : Colors.black38,
+                                ),
+                              ),
                       ),
                     );
                   },

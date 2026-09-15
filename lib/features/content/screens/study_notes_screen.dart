@@ -6,6 +6,7 @@ import '../providers/content_providers.dart';
 import '../../feed/providers/feed_providers.dart';
 import '../../feed/services/practice_content_service.dart';
 import '../../../shared/providers/providers.dart';
+import '../../../shared/services/connectivity_service.dart';
 import '../../home/widgets/home_widgets.dart';
 
 class StudyNotesScreen extends ConsumerStatefulWidget {
@@ -42,6 +43,19 @@ class _StudyNotesScreenState extends ConsumerState<StudyNotesScreen> {
           backgroundColor: Colors.red,
         ),
       );
+      return;
+    }
+
+    final isOnline = await ref.read(connectivityServiceProvider).checkIsOnline();
+    if (!isOnline) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You\'re offline — connect to the internet to generate questions.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 

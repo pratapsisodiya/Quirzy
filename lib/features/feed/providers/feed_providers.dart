@@ -24,40 +24,37 @@ final feedQuestionPoolProvider = FutureProvider<List<PracticeQuestion>>((ref) as
   return service.getQuestionPool();
 });
 
-/// Lanes available in the Lane Switcher, derived from the pool + local
-/// stats/bookmarks/revision state.
+/// Lanes available in the Lane Switcher, derived from per-topic storage +
+/// local stats/bookmarks/revision state.
 final feedLanesProvider = FutureProvider<List<FeedLane>>((ref) async {
-  final pool = await ref.watch(feedQuestionPoolProvider.future);
+  final contentService = ref.watch(practiceContentServiceProvider);
   final stats = ref.watch(feedStatsServiceProvider);
   final bookmarks = ref.watch(feedBookmarkServiceProvider);
   final revision = ref.watch(feedRevisionServiceProvider);
 
+  final topicSummaries = await contentService.getTopicSummaries();
   final muted = await stats.getMutedTopics();
-  final reported = await stats.getReportedQuestions();
 
-  final visible = pool.where((q) {
-    if (reported.contains(q.id)) return false;
-    final topic = q.topic;
-    if (topic != null && muted.contains(topic)) return false;
-    return true;
-  }).toList();
-
-  final topicCounts = <String, int>{};
-  for (final q in visible) {
-    final topic = (q.topic == null || q.topic!.trim().isEmpty) ? 'General' : q.topic!;
-    topicCounts[topic] = (topicCounts[topic] ?? 0) + 1;
-  }
-  final topicLanes = topicCounts.entries
-      .map((e) => FeedLane(type: FeedLaneType.topic, id: 'topic:${e.key}', label: e.key, count: e.value))
+  final topicLanes = topicSummaries
+      .where((t) => t.count > 0 && !muted.contains(t.topic))
+      .map((t) => FeedLane(
+            type: FeedLaneType.topic,
+            id: 'topic:${t.topic}',
+            label: t.topic,
+            count: t.count,
+            downloaded: t.downloaded,
+          ))
       .toList()
     ..sort((a, b) => b.count.compareTo(a.count));
+
+  final mixedCount = topicLanes.fold<int>(0, (sum, lane) => sum + lane.count);
 
   final weakTopics = await stats.getWeakTopics();
   final dueCount = await revision.getDueCount();
   final bookmarkCount = await bookmarks.getCount();
 
   return [
-    FeedLane(type: FeedLaneType.mixed, id: 'mixed', label: 'Mixed', count: visible.length),
+    FeedLane(type: FeedLaneType.mixed, id: 'mixed', label: 'Mixed', count: mixedCount),
     if (dueCount > 0)
       FeedLane(type: FeedLaneType.revision, id: 'revision', label: 'Revision Vault', count: dueCount),
     if (weakTopics.isNotEmpty)
@@ -181,6 +178,7 @@ class FeedController extends Notifier<FeedState> {
   /// to a lane for [topic].
   Future<void> switchToTopic(String topic) async {
     _fullPool = await ref.refresh(feedQuestionPoolProvider.future);
+    ref.invalidate(feedLanesProvider);
     await switchLane(FeedLane(type: FeedLaneType.topic, id: 'topic:$topic', label: topic));
   }
 

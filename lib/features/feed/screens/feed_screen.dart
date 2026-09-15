@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/providers/providers.dart';
+import '../../../shared/services/connectivity_service.dart';
 import '../../../shared/theme/practice_theme.dart';
 import '../models/feed_models.dart';
 import '../providers/feed_providers.dart';
@@ -119,6 +120,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     final controller = ref.read(feedControllerProvider.notifier);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final isOnline = ref.watch(isOnlineProvider).valueOrNull ?? true;
 
     ref.listen<FeedState>(feedControllerProvider, (previous, next) {
       // Fires once a lane finishes (re)loading — covers the very first
@@ -153,36 +155,77 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: PageView.builder(
-        controller: _pageController,
-        scrollDirection: Axis.vertical,
-        allowImplicitScrolling: true,
-        itemCount: itemCount,
-        onPageChanged: (i) => _handlePageChanged(i, feedState),
-        itemBuilder: (context, index) {
-          if (index == feedState.cards.length) {
-            return _buildEndOfLane(feedState, controller, isDark);
-          }
-          final card = feedState.cards[index];
-          return RepaintBoundary(
-            key: ValueKey('feed_card_${card.question.id}_$index'),
-            child: FeedQuestionCard(
-              cardState: card,
-              showGestureHint: feedState.showHints && index == 0,
-              positionInLane: index + 1,
-              laneLength: feedState.cards.length,
-              sessionAccuracy: feedState.sessionAccuracy,
-              sessionAnswered: feedState.sessionAnswered,
-              onSelectOption: (opt) => controller.selectOption(index, opt),
-              onSkip: () => controller.skipCurrent(index),
-              onBookmarkToggle: () => controller.toggleBookmark(index),
-              onOpenDeepDive: () => _openDeepDive(card.question, index),
-              onOpenLaneSwitcher: _openLaneSwitcher,
-              onLongPressMenu: () => _openLongPressMenu(card.question),
-              onWrongReason: controller.recordWrongReason,
-            ),
-          );
-        },
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            allowImplicitScrolling: true,
+            itemCount: itemCount,
+            onPageChanged: (i) => _handlePageChanged(i, feedState),
+            itemBuilder: (context, index) {
+              if (index == feedState.cards.length) {
+                return _buildEndOfLane(feedState, controller, isDark);
+              }
+              final card = feedState.cards[index];
+              return RepaintBoundary(
+                key: ValueKey('feed_card_${card.question.id}_$index'),
+                child: FeedQuestionCard(
+                  cardState: card,
+                  showGestureHint: feedState.showHints && index == 0,
+                  positionInLane: index + 1,
+                  laneLength: feedState.cards.length,
+                  sessionAccuracy: feedState.sessionAccuracy,
+                  sessionAnswered: feedState.sessionAnswered,
+                  onSelectOption: (opt) => controller.selectOption(index, opt),
+                  onSkip: () => controller.skipCurrent(index),
+                  onBookmarkToggle: () => controller.toggleBookmark(index),
+                  onOpenDeepDive: () => _openDeepDive(card.question, index),
+                  onOpenLaneSwitcher: _openLaneSwitcher,
+                  onLongPressMenu: () => _openLongPressMenu(card.question),
+                  onWrongReason: controller.recordWrongReason,
+                ),
+              );
+            },
+          ),
+          if (!isOnline) _buildOfflineBanner(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOfflineBanner() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        bottom: false,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: PracticeTheme.warning,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off_rounded, size: 18, color: Colors.black87),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  "Offline — practicing your saved questions",
+                  style: GoogleFonts.plusJakartaSans(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

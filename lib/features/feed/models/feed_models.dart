@@ -43,6 +43,23 @@ class PracticeQuestion {
   }
 }
 
+/// One topic bucket in the local content store — the data behind a
+/// per-topic lane, including whether it's protected from eviction
+/// ("downloaded").
+class TopicSummary {
+  final String topic;
+  final int count;
+  final bool downloaded;
+  final DateTime lastUpdated;
+
+  const TopicSummary({
+    required this.topic,
+    required this.count,
+    required this.downloaded,
+    required this.lastUpdated,
+  });
+}
+
 /// The kind of lane a [FeedLane] represents — mirrors ScrollPrep's lane list
 /// (Mixed, per-topic, weak topics, revision vault, bookmarks).
 enum FeedLaneType { mixed, topic, weakTopics, revision, bookmarks }
@@ -53,12 +70,14 @@ class FeedLane {
   final String id;
   final String label;
   final int count;
+  final bool downloaded;
 
   const FeedLane({
     required this.type,
     required this.id,
     required this.label,
     this.count = 0,
+    this.downloaded = false,
   });
 
   static const mixedDefault = FeedLane(
@@ -67,11 +86,12 @@ class FeedLane {
     label: 'Mixed',
   );
 
-  FeedLane copyWith({int? count}) => FeedLane(
+  FeedLane copyWith({int? count, bool? downloaded}) => FeedLane(
     type: type,
     id: id,
     label: label,
     count: count ?? this.count,
+    downloaded: downloaded ?? this.downloaded,
   );
 }
 

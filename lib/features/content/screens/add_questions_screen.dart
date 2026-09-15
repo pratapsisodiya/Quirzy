@@ -6,6 +6,7 @@ import '../providers/content_providers.dart';
 import '../../feed/providers/feed_providers.dart';
 import '../../feed/services/practice_content_service.dart';
 import '../../../shared/providers/providers.dart';
+import '../../../shared/services/connectivity_service.dart';
 
 class _QuestionData {
   final TextEditingController questionCtrl = TextEditingController();
@@ -87,6 +88,12 @@ class _AddQuestionsScreenState extends ConsumerState<AddQuestionsScreen> {
           return;
         }
       }
+    }
+
+    final isOnline = await ref.read(connectivityServiceProvider).checkIsOnline();
+    if (!isOnline) {
+      if (mounted) _showError('You\'re offline — connect to the internet to save this topic.');
+      return;
     }
 
     HapticFeedback.lightImpact();
