@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../shared/theme/quiz_theme.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
+import '../../../shared/theme/practice_theme.dart';
+import '../models/feed_models.dart';
 import '../providers/feed_providers.dart';
 
 /// Swipe-left drawer (PRD §F4): the answer's explanation plus a short list
@@ -11,12 +11,12 @@ import '../providers/feed_providers.dart';
 /// sheet rather than a separate route — simplest fit for this app's
 /// existing modal-sheet idiom, still swipe-to-dismiss and back-button safe.
 class DeepDiveSheet extends ConsumerWidget {
-  final DailyChallengeQuestion question;
+  final PracticeQuestion question;
   final int cardIndex;
 
   const DeepDiveSheet({super.key, required this.question, required this.cardIndex});
 
-  static Future<void> show(BuildContext context, DailyChallengeQuestion question, int cardIndex) {
+  static Future<void> show(BuildContext context, PracticeQuestion question, int cardIndex) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -40,7 +40,7 @@ class DeepDiveSheet extends ConsumerWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: isDark ? QuizTheme.surfaceDark : QuizTheme.surfaceLight,
+            color: isDark ? PracticeTheme.surfaceDark : PracticeTheme.surfaceLight,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: ListView(
@@ -80,13 +80,13 @@ class DeepDiveSheet extends ConsumerWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: QuizTheme.success.withOpacity(0.08),
+                  color: PracticeTheme.success.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: QuizTheme.success, size: 20),
+                    const Icon(Icons.check_circle_rounded, color: PracticeTheme.success, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
@@ -155,7 +155,7 @@ class DeepDiveSheet extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              const Icon(Icons.chevron_right_rounded, size: 18, color: QuizTheme.primary),
+                              const Icon(Icons.chevron_right_rounded, size: 18, color: PracticeTheme.primary),
                             ],
                           ),
                         ),

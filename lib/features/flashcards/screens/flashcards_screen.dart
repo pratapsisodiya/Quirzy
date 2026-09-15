@@ -39,7 +39,7 @@ class _FlashcardsScreenState extends ConsumerState<FlashcardsScreen>
   bool _isGenerating = false;
   int _selectedTab = 0;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  String _userName = 'Quiz Master';
+  String _userName = 'Practice Champ';
   String? _photoUrl;
 
   // Static colors

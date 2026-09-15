@@ -4,8 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../shared/providers/providers.dart';
-import '../../../shared/theme/quiz_theme.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
+import '../../../shared/theme/practice_theme.dart';
 import '../models/feed_models.dart';
 import '../providers/feed_providers.dart';
 import '../widgets/deep_dive_sheet.dart';
@@ -66,7 +65,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     controller.savePosition(newIndex);
   }
 
-  void _openDeepDive(DailyChallengeQuestion question, int index) {
+  void _openDeepDive(PracticeQuestion question, int index) {
     DeepDiveSheet.show(context, question, index);
   }
 
@@ -74,7 +73,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     LaneSwitcherSheet.show(context);
   }
 
-  void _openLongPressMenu(DailyChallengeQuestion question) {
+  void _openLongPressMenu(PracticeQuestion question) {
     LongPressMenuSheet.show(context, question);
   }
 
@@ -107,7 +106,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('🎯 Daily target reached — $kFeedDailyTarget questions today!'),
-        backgroundColor: QuizTheme.success,
+        backgroundColor: PracticeTheme.success,
         duration: const Duration(seconds: 3),
       ),
     );
@@ -209,7 +208,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Generate or take a quiz first — every question you attempt joins this feed for reels-style revision.',
+                'Add a topic from Home first — every question you add joins this feed for reels-style revision.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 14,
@@ -219,7 +218,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               ),
               const SizedBox(height: 24),
               FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: QuizTheme.primary),
+                style: FilledButton.styleFrom(backgroundColor: PracticeTheme.primary),
                 onPressed: () => ref.read(tabIndexProvider.notifier).state = 1,
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -240,7 +239,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.emoji_events_rounded, size: 56, color: QuizTheme.primary),
+            const Icon(Icons.emoji_events_rounded, size: 56, color: PracticeTheme.primary),
             const SizedBox(height: 18),
             Text(
               "You're all caught up",
@@ -258,7 +257,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             ),
             const SizedBox(height: 22),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: QuizTheme.primary),
+              style: FilledButton.styleFrom(backgroundColor: PracticeTheme.primary),
               onPressed: () => controller.reshuffleCurrentLane(),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),

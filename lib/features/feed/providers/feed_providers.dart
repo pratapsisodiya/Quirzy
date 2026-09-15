@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../home/providers/home_stats_provider.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
-import '../../quiz/providers/quiz_providers.dart';
 import '../models/feed_models.dart';
 import '../services/feed_bookmark_service.dart';
 import '../services/feed_revision_service.dart';
 import '../services/feed_stats_service.dart';
+import '../services/practice_content_service.dart';
+import '../services/xp_service.dart';
 
 const int kFeedDailyTarget = 50;
 const int kFeedBreakNudgeMinutes = 25;
@@ -17,10 +17,10 @@ final feedStatsServiceProvider = Provider<FeedStatsService>((ref) => FeedStatsSe
 final feedBookmarkServiceProvider = Provider<FeedBookmarkService>((ref) => FeedBookmarkService());
 final feedRevisionServiceProvider = Provider<FeedRevisionService>((ref) => FeedRevisionService());
 
-/// The full local question pool the feed draws from (built from the user's
-/// own generated/attempted quizzes — see DailyChallengeService).
-final feedQuestionPoolProvider = FutureProvider<List<DailyChallengeQuestion>>((ref) async {
-  final service = ref.watch(dailyChallengeServiceProvider);
+/// The full local question pool the feed draws from — see
+/// PracticeContentService.
+final feedQuestionPoolProvider = FutureProvider<List<PracticeQuestion>>((ref) async {
+  final service = ref.watch(practiceContentServiceProvider);
   return service.getQuestionPool();
 });
 
@@ -74,7 +74,7 @@ final feedControllerProvider = NotifierProvider<FeedController, FeedState>(FeedC
 /// bookmark state, Focus Mode, session stats, and the local moderation +
 /// spaced-repetition side effects that go with each answer.
 class FeedController extends Notifier<FeedState> {
-  List<DailyChallengeQuestion> _fullPool = [];
+  List<PracticeQuestion> _fullPool = [];
 
   @override
   FeedState build() {
@@ -108,13 +108,13 @@ class FeedController extends Notifier<FeedState> {
     }
   }
 
-  Future<List<DailyChallengeQuestion>> _questionsForLane(FeedLane lane) async {
+  Future<List<PracticeQuestion>> _questionsForLane(FeedLane lane) async {
     final stats = ref.read(feedStatsServiceProvider);
     final muted = await stats.getMutedTopics();
     final reported = await stats.getReportedQuestions();
     final deprioritized = await stats.getDeprioritizedQuestions();
 
-    List<DailyChallengeQuestion> base = _fullPool.where((q) {
+    List<PracticeQuestion> base = _fullPool.where((q) {
       if (reported.contains(q.id)) return false;
       final topic = q.topic;
       if (topic != null && muted.contains(topic)) return false;
@@ -176,6 +176,14 @@ class FeedController extends Notifier<FeedState> {
 
   Future<void> reshuffleCurrentLane() => switchLane(state.lane);
 
+  /// Refreshes the pool from storage (picking up questions just added
+  /// elsewhere, e.g. a freshly generated/added topic) and switches straight
+  /// to a lane for [topic].
+  Future<void> switchToTopic(String topic) async {
+    _fullPool = await ref.refresh(feedQuestionPoolProvider.future);
+    await switchLane(FeedLane(type: FeedLaneType.topic, id: 'topic:$topic', label: topic));
+  }
+
   Future<void> savePosition(int index) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('feed_lane_pos_${state.lane.id}', index);
@@ -213,7 +221,7 @@ class FeedController extends Notifier<FeedState> {
     await ref.read(feedRevisionServiceProvider).recordOutcome(card.question, correct);
 
     if (correct) {
-      await ref.read(dailyQuizServiceProvider).addXPToday(10);
+      await ref.read(xpServiceProvider).addXPToday(10);
       ref.invalidate(homeStatsProvider);
     }
 
@@ -285,11 +293,11 @@ class FeedController extends Notifier<FeedState> {
     ref.invalidate(feedLanesProvider);
   }
 
-  Future<void> markTooEasy(DailyChallengeQuestion question) async {
+  Future<void> markTooEasy(PracticeQuestion question) async {
     await ref.read(feedStatsServiceProvider).deprioritizeQuestion(question.id);
   }
 
-  Future<void> markTooHard(DailyChallengeQuestion question) async {
+  Future<void> markTooHard(PracticeQuestion question) async {
     // Surfaces the question again soon, same as a wrong answer would.
     await ref.read(feedRevisionServiceProvider).recordOutcome(question, false);
   }
@@ -298,7 +306,7 @@ class FeedController extends Notifier<FeedState> {
     await ref.read(feedStatsServiceProvider).recordWrongReason(reason);
   }
 
-  List<DailyChallengeQuestion> similarTo(DailyChallengeQuestion question, {int limit = 3}) {
+  List<PracticeQuestion> similarTo(PracticeQuestion question, {int limit = 3}) {
     final topic = question.topic;
     if (topic == null || topic.trim().isEmpty) return const [];
     return _fullPool
@@ -310,7 +318,7 @@ class FeedController extends Notifier<FeedState> {
   /// Inserts [question] right after [afterIndex] (or jumps to it if it's
   /// already in the lane) — used when tapping a "Similar" question in the
   /// Deep Dive drawer. Returns the index to scroll to.
-  int insertNext(int afterIndex, DailyChallengeQuestion question) {
+  int insertNext(int afterIndex, PracticeQuestion question) {
     final cards = List<FeedCardState>.from(state.cards);
     final existing = cards.indexWhere((c) => c.question.id == question.id);
     if (existing != -1) return existing;

@@ -352,20 +352,20 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   // Benefits
                   _buildBenefitRow(
                     Icons.auto_awesome_rounded,
-                    'Unlimited AI Quizzes',
-                    'Generate quizzes on any topic instantly.',
+                    'Unlimited AI Topics',
+                    'Add as many practice topics to your feed as you want.',
                     isDark,
                   ),
                   _buildBenefitRow(
-                    Icons.assignment_turned_in_rounded,
-                    'Full-Length Mock Tests',
-                    'Timed mock exams for JEE, NEET, CAT, GRE & more with section-wise analysis.',
+                    Icons.bolt_rounded,
+                    'Unlimited Practice Feed',
+                    'No daily cap on questions — keep swiping.',
                     isDark,
                   ),
                   _buildBenefitRow(
                     Icons.menu_book_rounded,
                     'AI Study Materials',
-                    'Instant Summary + Flashcards + Practice Quiz for any topic.',
+                    'Instant Summary + Flashcards + Practice Questions for any topic.',
                     isDark,
                   ),
                   _buildBenefitRow(

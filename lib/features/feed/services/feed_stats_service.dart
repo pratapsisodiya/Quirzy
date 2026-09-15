@@ -95,4 +95,24 @@ class FeedStatsService {
     map[reason] = (map[reason] as int? ?? 0) + 1;
     await prefs.setString(_wrongReasonKey, jsonEncode(map));
   }
+
+  /// Questions answered per day for the last [days] days (oldest first) —
+  /// reconstructed from the same daily counters FeedController already
+  /// writes, so My Prep's activity trend needs no new storage format.
+  Future<List<int>> getDailyAnsweredCounts({int days = 7}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final counts = <int>[];
+    for (var i = days - 1; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateStr = date.toIso8601String().split('T').first;
+      counts.add(prefs.getInt('feed_answered_count_$dateStr') ?? 0);
+    }
+    return counts;
+  }
+
+  Future<int> getTodayAnsweredCount() async {
+    final counts = await getDailyAnsweredCounts(days: 1);
+    return counts.first;
+  }
 }

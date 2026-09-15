@@ -4,7 +4,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../../features/quiz/services/services.dart'; // Reuse AppwriteClient and Config
+import '../../shared/appwrite/appwrite_client.dart';
 
 /// Auth Service using Appwrite
 class AuthService {

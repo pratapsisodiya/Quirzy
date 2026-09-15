@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../shared/theme/quiz_theme.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
-import '../../quiz/widgets/option_card.dart';
+import '../../../shared/theme/practice_theme.dart';
 import '../models/feed_models.dart';
+import 'option_card.dart';
 import 'question_timer.dart';
 
 const List<String> kWrongAnswerReasons = [
@@ -170,13 +169,13 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: QuizTheme.primary.withOpacity(0.1),
+                color: PracticeTheme.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.repeat_rounded, size: 15, color: QuizTheme.primary),
+                  Icon(Icons.repeat_rounded, size: 15, color: PracticeTheme.primary),
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
@@ -185,7 +184,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
                       style: GoogleFonts.plusJakartaSans(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: QuizTheme.primary,
+                        color: PracticeTheme.primary,
                       ),
                     ),
                   ),
@@ -201,7 +200,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
           onPressed: widget.onBookmarkToggle,
           icon: Icon(
             Icons.bookmark_rounded,
-            color: card.bookmarked ? QuizTheme.primary : (isDark ? Colors.white60 : Colors.black45),
+            color: card.bookmarked ? PracticeTheme.primary : (isDark ? Colors.white60 : Colors.black45),
           ),
         ),
         IconButton(
@@ -227,7 +226,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
               value: progress,
               minHeight: 3,
               backgroundColor: isDark ? Colors.white12 : Colors.black12,
-              valueColor: AlwaysStoppedAnimation(QuizTheme.primary),
+              valueColor: AlwaysStoppedAnimation(PracticeTheme.primary),
             ),
           ),
         ),
@@ -244,14 +243,14 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
     );
   }
 
-  Widget _buildQuestionBody(BuildContext context, bool isDark, DailyChallengeQuestion question) {
+  Widget _buildQuestionBody(BuildContext context, bool isDark, PracticeQuestion question) {
     return Stack(
       alignment: Alignment.center,
       children: [
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(22),
-          decoration: QuizTheme.cardDecoration(isDark: isDark),
+          decoration: PracticeTheme.cardDecoration(isDark: isDark),
           child: Center(
             child: SingleChildScrollView(
               child: Text(
@@ -285,7 +284,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
           child: AnimatedScale(
             scale: _showHeart ? 1.0 : 0.6,
             duration: const Duration(milliseconds: 200),
-            child: Icon(Icons.bookmark_rounded, color: QuizTheme.primary.withOpacity(0.85), size: 84),
+            child: Icon(Icons.bookmark_rounded, color: PracticeTheme.primary.withOpacity(0.85), size: 84),
           ),
         ),
       ],
@@ -295,7 +294,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
   List<Widget> _buildOptions(
     BuildContext context,
     bool isDark,
-    DailyChallengeQuestion question,
+    PracticeQuestion question,
     FeedCardState card,
     bool resolved,
   ) {
@@ -324,7 +323,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
     return options;
   }
 
-  Widget _buildPeek(BuildContext context, bool isDark, DailyChallengeQuestion question, FeedCardState card) {
+  Widget _buildPeek(BuildContext context, bool isDark, PracticeQuestion question, FeedCardState card) {
     final explanation = question.explanation.trim();
     if (explanation.isEmpty) return const SizedBox.shrink();
     return AnimatedOpacity(
@@ -334,7 +333,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: (card.isCorrect ? QuizTheme.success : QuizTheme.error).withOpacity(0.08),
+          color: (card.isCorrect ? PracticeTheme.success : PracticeTheme.error).withOpacity(0.08),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -370,17 +369,17 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: selected
-                    ? QuizTheme.primary.withOpacity(0.12)
+                    ? PracticeTheme.primary.withOpacity(0.12)
                     : (isDark ? Colors.white10 : Colors.black.withOpacity(0.04)),
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: selected ? QuizTheme.primary : Colors.transparent),
+                border: Border.all(color: selected ? PracticeTheme.primary : Colors.transparent),
               ),
               child: Text(
                 reason,
                 style: GoogleFonts.plusJakartaSans(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: selected ? QuizTheme.primary : (isDark ? Colors.white60 : Colors.black54),
+                  color: selected ? PracticeTheme.primary : (isDark ? Colors.white60 : Colors.black54),
                 ),
               ),
             ),
@@ -409,7 +408,7 @@ class _FeedQuestionCardState extends State<FeedQuestionCard> {
             },
             child: Text(
               'Skip ›',
-              style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: QuizTheme.primary),
+              style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.w700, color: PracticeTheme.primary),
             ),
           ),
       ],

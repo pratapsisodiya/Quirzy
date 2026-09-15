@@ -118,7 +118,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> with SingleTicker
             ),
             const SizedBox(height: 8),
             Text(
-              'Start quizzing to climb the leaderboard!',
+              'Start practicing to climb the leaderboard!',
               style: GoogleFonts.plusJakartaSans(
                 color: isDark ? ThemeConfig.textSecondaryDark : ThemeConfig.textSecondaryLight,
               ),

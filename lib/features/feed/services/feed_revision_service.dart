@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
+import '../models/feed_models.dart';
 
 /// Lightweight SM-2 variant for the Revision Vault (PRD §9):
 /// wrong -> +1 day; 1st correct after wrong -> +3 days;
 /// 2nd consecutive correct -> +7 days; 3rd -> graduated out;
 /// wrong at any stage resets to +1 day.
 class _RevisionEntry {
-  final DailyChallengeQuestion question;
+  final PracticeQuestion question;
   final DateTime dueDate;
   final int consecutiveCorrect;
 
@@ -24,7 +24,7 @@ class _RevisionEntry {
   };
 
   factory _RevisionEntry.fromJson(Map<String, dynamic> json) => _RevisionEntry(
-    question: DailyChallengeQuestion.fromJson(
+    question: PracticeQuestion.fromJson(
       json['question'] as Map<String, dynamic>,
     ),
     dueDate: DateTime.parse(json['dueDate'] as String),
@@ -54,7 +54,7 @@ class FeedRevisionService {
   }
 
   /// Cards due today or earlier.
-  Future<List<DailyChallengeQuestion>> getDueQuestions() async {
+  Future<List<PracticeQuestion>> getDueQuestions() async {
     final entries = await _load();
     final now = DateTime.now();
     return entries
@@ -67,7 +67,7 @@ class FeedRevisionService {
 
   /// Called after every feed answer (wrong OR right). Only questions that
   /// have entered the vault via a wrong answer ever progress or graduate.
-  Future<void> recordOutcome(DailyChallengeQuestion question, bool correct) async {
+  Future<void> recordOutcome(PracticeQuestion question, bool correct) async {
     final entries = await _load();
     final index = entries.indexWhere((e) => e.question.id == question.id);
 

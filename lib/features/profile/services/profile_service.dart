@@ -1,5 +1,5 @@
 import 'package:appwrite/appwrite.dart';
-import '../../quiz/services/services.dart'; // Reuse AppwriteClient and Config
+import '../../../shared/appwrite/appwrite_client.dart';
 
 /// Profile/Settings Service using Appwrite
 class ProfileService {

@@ -375,8 +375,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       _featureChip(
-                                        Icons.assignment_turned_in_rounded,
-                                        'Mock Tests',
+                                        Icons.bolt_rounded,
+                                        'Practice Feed',
                                         _blue,
                                         isDark,
                                         offset: _floatAnimation.value * 0.8,
@@ -384,7 +384,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                       const SizedBox(width: 10),
                                       _featureChip(
                                         Icons.auto_awesome_rounded,
-                                        'AI Quizzes',
+                                        'AI Topics',
                                         _purple,
                                         isDark,
                                         offset: -_floatAnimation.value * 0.6,

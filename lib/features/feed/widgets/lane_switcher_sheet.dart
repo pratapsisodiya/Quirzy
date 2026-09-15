@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../shared/theme/quiz_theme.dart';
+import '../../../shared/theme/practice_theme.dart';
 import '../models/feed_models.dart';
 import '../providers/feed_providers.dart';
 
@@ -46,7 +46,7 @@ class LaneSwitcherSheet extends ConsumerWidget {
       child: Container(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.75),
         decoration: BoxDecoration(
-          color: isDark ? QuizTheme.surfaceDark : QuizTheme.surfaceLight,
+          color: isDark ? PracticeTheme.surfaceDark : PracticeTheme.surfaceLight,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
@@ -100,14 +100,14 @@ class LaneSwitcherSheet extends ConsumerWidget {
                           Navigator.of(context).pop();
                         },
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                        tileColor: selected ? QuizTheme.primary.withOpacity(0.08) : null,
-                        leading: Icon(_iconForLane(lane.type), color: selected ? QuizTheme.primary : (isDark ? Colors.white54 : Colors.black45)),
+                        tileColor: selected ? PracticeTheme.primary.withOpacity(0.08) : null,
+                        leading: Icon(_iconForLane(lane.type), color: selected ? PracticeTheme.primary : (isDark ? Colors.white54 : Colors.black45)),
                         title: Text(
                           lane.label,
                           style: GoogleFonts.plusJakartaSans(
                             fontSize: 14,
                             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                            color: selected ? QuizTheme.primary : (isDark ? Colors.white : Colors.black87),
+                            color: selected ? PracticeTheme.primary : (isDark ? Colors.white : Colors.black87),
                           ),
                         ),
                         trailing: Text(

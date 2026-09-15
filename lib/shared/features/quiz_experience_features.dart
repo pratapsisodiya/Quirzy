@@ -15,7 +15,6 @@
 library;
 
 export 'quick_practice_service.dart';
-export 'random_quiz_service.dart';
 export 'study_streak_tracker.dart';
 export 'achievement_badges.dart';
 export 'performance_insights.dart';

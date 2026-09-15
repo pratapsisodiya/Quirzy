@@ -33,7 +33,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen>
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
-  String _userName = 'Quiz Master';
+  String _userName = 'Practice Champ';
   String _userEmail = 'user@quirzy.com';
   String? _photoUrl;
   bool _isLoading = true;
@@ -56,7 +56,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen>
 
       if (!mounted) return;
       setState(() {
-        _userName = name?.isNotEmpty == true ? name! : 'Quiz Master';
+        _userName = name?.isNotEmpty == true ? name! : 'Practice Champ';
         _userEmail = email?.isNotEmpty == true ? email! : 'user@quirzy.com';
         _photoUrl = photoUrl;
         _isLoading = false;
@@ -460,7 +460,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen>
         _buildSwitchTile(
           icon: Icons.volume_up_rounded,
           title: 'Sound Effects',
-          subtitle: 'Play sounds during quizzes',
+          subtitle: 'Play sounds during practice',
           value: settingsState.soundEnabled,
           iconColor: const Color(0xFFEC4899),
           isDark: isDark,
@@ -496,28 +496,6 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen>
       textMain: textMain,
       children: [
         _buildSettingTile(
-          icon: Icons.analytics_outlined,
-          title: 'Quiz Analytics',
-          subtitle: 'View detailed performance insights',
-          iconColor: const Color(0xFF10B981),
-          isDark: isDark,
-          surfaceColor: surfaceColor,
-          textMain: textMain,
-          textSub: textSub,
-          onTap: () => context.push(AppRoutes.analytics),
-        ),
-        _buildSettingTile(
-          icon: Icons.history_rounded,
-          title: 'Quiz History',
-          subtitle: 'View your past quiz results',
-          iconColor: primaryColor,
-          isDark: isDark,
-          surfaceColor: surfaceColor,
-          textMain: textMain,
-          textSub: textSub,
-          onTap: () => context.push(AppRoutes.history),
-        ),
-        _buildSettingTile(
           icon: Icons.download_rounded,
           title: 'Download My Data',
           subtitle: 'Export history as JSON',
@@ -531,7 +509,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen>
         _buildSettingTile(
           icon: Icons.delete_forever_rounded,
           title: 'Clear History',
-          subtitle: 'Remove all quiz records',
+          subtitle: 'Remove all practice records',
           iconColor: const Color(0xFFEF4444),
           isDark: isDark,
           surfaceColor: surfaceColor,
@@ -1038,7 +1016,7 @@ class _ProfileSettingsScreenState extends ConsumerState<ProfileSettingsScreen>
           ),
         ),
         content: Text(
-          'This will permanently delete all your quiz history. This action cannot be undone.',
+          'This will permanently delete all your practice history. This action cannot be undone.',
           style: GoogleFonts.plusJakartaSans(
             color: isDark ? const Color(0xFFA78BFA) : const Color(0xFF664C9A),
           ),

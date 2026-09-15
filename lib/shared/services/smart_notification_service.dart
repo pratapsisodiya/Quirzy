@@ -11,7 +11,6 @@ class _NIds {
   static const int examCountdown = 300;
   static const int weeklyDigest = 400;
   static const int reEngagement = 500;
-  static const int mockTestNudge = 600;
   static const int studyTime = 700;
 }
 
@@ -83,15 +82,15 @@ class SmartNotificationService {
     if (!(prefs.getBool('notif_srs') ?? true)) return;
 
     final body = dueCount == 1
-        ? '1 flashcard is waiting for review'
-        : '$dueCount flashcards are waiting — takes ~${(dueCount * 0.4).ceil()} min';
+        ? '1 question is ready for revision'
+        : '$dueCount questions are ready for revision — takes ~${(dueCount * 0.4).ceil()} min';
 
     await _plugin.zonedSchedule(
       _NIds.srsReminder,
-      'Flashcard review due',
+      'Revision due',
       body,
       _todayAt(studyHour, studyMinute),
-      _details(_Channels.srs, 'SRS Reminders',
+      _details(_Channels.srs, 'Revision Reminders',
           'Spaced repetition review reminders'),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
@@ -113,7 +112,7 @@ class SmartNotificationService {
     if (studiedToday) return;
 
     final body = currentStreak > 1
-        ? 'Your $currentStreak-day streak ends at midnight! Quick quiz to save it.'
+        ? 'Your $currentStreak-day streak ends at midnight! Quick practice to save it.'
         : 'Start your streak today — just 5 minutes of practice.';
 
     await _plugin.zonedSchedule(
@@ -161,7 +160,7 @@ class SmartNotificationService {
     if (daysLeft <= 7) {
       body = '$examName is in $daysLeft days. Give it everything!';
     } else if (daysLeft <= 30) {
-      body = '$daysLeft days to $examName. Mock tests + weak area review now.';
+      body = '$daysLeft days to $examName. Practice + weak area review now.';
     } else {
       body = '$daysLeft days to $examName. Steady daily practice wins.';
     }
@@ -183,7 +182,7 @@ class SmartNotificationService {
   // Sunday 9 AM — your week in numbers.
 
   Future<void> scheduleWeeklyDigest({
-    required int quizzesThisWeek,
+    required int questionsThisWeek,
     required int flashcardsReviewed,
     required int bestStreak,
   }) async {
@@ -193,8 +192,12 @@ class SmartNotificationService {
     final prefs = await SharedPreferences.getInstance();
     if (!(prefs.getBool('notif_weekly_digest') ?? true)) return;
 
-    final body = '$quizzesThisWeek quizzes · $flashcardsReviewed cards · '
-        '$bestStreak-day streak. Keep the momentum!';
+    final parts = [
+      '$questionsThisWeek questions',
+      if (flashcardsReviewed > 0) '$flashcardsReviewed cards',
+      '$bestStreak-day streak',
+    ];
+    final body = '${parts.join(' · ')}. Keep the momentum!';
 
     await _plugin.zonedSchedule(
       _NIds.weeklyDigest,
@@ -221,7 +224,7 @@ class SmartNotificationService {
     final messages = [
       'Your flashcards miss you. 5-min review?',
       'Back to studying? Your progress is waiting.',
-      'Quick quiz to warm up? Just 5 questions.',
+      'Quick practice to warm up? Just 5 questions.',
     ];
     final idx = DateTime.now().day % messages.length;
 
@@ -241,28 +244,6 @@ class SmartNotificationService {
   Future<void> cancelReEngagement() async {
     await _ensureReady();
     await _plugin.cancel(_NIds.reEngagement);
-  }
-
-  // ── Mock Test Nudge ───────────────────────────────────────────────────────
-  // Shown when user hasn't taken a mock test in 7+ days.
-
-  Future<void> scheduleMockTestNudge({required String examType}) async {
-    await _ensureReady();
-    await _plugin.cancel(_NIds.mockTestNudge);
-
-    final prefs = await SharedPreferences.getInstance();
-    if (!(prefs.getBool('notif_mock_test') ?? true)) return;
-
-    final fireAt = _todayAt(18, 30); // 6:30 PM
-
-    await _plugin.zonedSchedule(
-      _NIds.mockTestNudge,
-      'Time for a $examType mock test?',
-      'Simulate real exam conditions. See where you stand.',
-      fireAt,
-      _details(_Channels.study, 'Study Time', 'Study reminders and suggestions'),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-    );
   }
 
   // ── Custom Study Time ─────────────────────────────────────────────────────
@@ -317,7 +298,6 @@ class SmartNotificationService {
       'notif_exam_countdown': prefs.getBool('notif_exam_countdown') ?? true,
       'notif_weekly_digest': prefs.getBool('notif_weekly_digest') ?? true,
       'notif_re_engage': prefs.getBool('notif_re_engage') ?? true,
-      'notif_mock_test': prefs.getBool('notif_mock_test') ?? true,
       'notif_study_time': prefs.getBool('notif_study_time') ?? false,
     };
   }
@@ -343,9 +323,6 @@ class SmartNotificationService {
           break;
         case 'notif_re_engage':
           await _plugin.cancel(_NIds.reEngagement);
-          break;
-        case 'notif_mock_test':
-          await _plugin.cancel(_NIds.mockTestNudge);
           break;
         case 'notif_study_time':
           await _plugin.cancel(_NIds.studyTime);

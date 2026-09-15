@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
+import '../models/feed_models.dart';
 
 /// Manual "double-tap to save" bookmarks for the practice feed.
 /// Stores full question snapshots so a bookmark survives the pool it
@@ -8,17 +8,17 @@ import '../../quiz/providers/daily_challenge_provider.dart';
 class FeedBookmarkService {
   static const _key = 'feed_bookmarks';
 
-  Future<List<DailyChallengeQuestion>> _load() async {
+  Future<List<PracticeQuestion>> _load() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key);
     if (raw == null || raw.isEmpty) return [];
     final decoded = jsonDecode(raw) as List;
     return decoded
-        .map((e) => DailyChallengeQuestion.fromJson(e as Map<String, dynamic>))
+        .map((e) => PracticeQuestion.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
-  Future<void> _save(List<DailyChallengeQuestion> items) async {
+  Future<void> _save(List<PracticeQuestion> items) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       _key,
@@ -26,14 +26,14 @@ class FeedBookmarkService {
     );
   }
 
-  Future<List<DailyChallengeQuestion>> getBookmarks() => _load();
+  Future<List<PracticeQuestion>> getBookmarks() => _load();
 
   Future<Set<String>> getBookmarkedIds() async =>
       (await _load()).map((e) => e.id).toSet();
 
   Future<int> getCount() async => (await _load()).length;
 
-  Future<void> addBookmark(DailyChallengeQuestion question) async {
+  Future<void> addBookmark(PracticeQuestion question) async {
     final items = await _load();
     if (items.any((e) => e.id == question.id)) return;
     items.insert(0, question);

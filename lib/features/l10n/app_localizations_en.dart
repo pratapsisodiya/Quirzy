@@ -112,7 +112,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterTopicHint => 'Enter a topic (e.g., \'Photosynthesis\')';
 
   @override
-  String get generateQuizButton => 'Generate Quiz';
+  String get generateQuizButton => 'Add Practice Topic';
 
   @override
   String get listening => 'Listening...';
@@ -130,7 +130,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterTopicDeepDive => 'Enter a topic for a deep dive!';
 
   @override
-  String get configureQuizTitle => 'Configure Quiz';
+  String get configureQuizTitle => 'Configure Topic';
 
   @override
   String get topicLabel => 'Topic';

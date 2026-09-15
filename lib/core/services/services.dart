@@ -5,7 +5,6 @@ library;
 // TODO: Move actual files to core/services/
 export 'package:quirzy/shared/services/cache_service.dart';
 export 'package:quirzy/shared/services/settings_service.dart';
-export 'package:quirzy/shared/services/notification_service.dart';
 export 'package:quirzy/shared/services/share_service.dart';
 export 'package:quirzy/shared/services/study_streak_service.dart';
 export 'package:quirzy/shared/services/spaced_repetition_service.dart';

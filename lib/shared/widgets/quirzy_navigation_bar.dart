@@ -62,14 +62,9 @@ class QuirzyNavigationBar extends StatelessWidget {
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment_turned_in_rounded),
-            label: 'Mock Test',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_rounded),
-            selectedIcon: Icon(Icons.history_rounded),
-            label: 'History',
+            icon: Icon(Icons.trending_up_rounded),
+            selectedIcon: Icon(Icons.trending_up_rounded),
+            label: 'My Prep',
           ),
           NavigationDestination(
             icon: Icon(Icons.style_rounded),

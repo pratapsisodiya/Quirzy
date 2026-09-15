@@ -167,7 +167,7 @@ class QuizGenerationLoadingScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              title ?? 'Generating Quiz...',
+              title ?? 'Generating...',
               textAlign: TextAlign.center,
               style: GoogleFonts.plusJakartaSans(
                 fontSize: 20,

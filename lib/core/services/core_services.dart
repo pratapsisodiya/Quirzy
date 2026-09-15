@@ -2,7 +2,6 @@
 // TODO: Migrate imports to use core/services/ directly
 export 'package:quirzy/shared/services/cache_service.dart';
 export 'package:quirzy/shared/services/settings_service.dart';
-export 'package:quirzy/shared/services/notification_service.dart';
 export 'package:quirzy/shared/services/share_service.dart';
 export 'package:quirzy/shared/services/achievement_service.dart';
 export 'package:quirzy/shared/services/study_streak_service.dart';

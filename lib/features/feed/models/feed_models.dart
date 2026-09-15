@@ -1,4 +1,47 @@
-import '../../quiz/providers/daily_challenge_provider.dart';
+/// A single practice question in the feed's local content pool.
+class PracticeQuestion {
+  final String id;
+  final String questionText;
+  final List<String> options;
+  final int correctIndex;
+  final String explanation;
+  final String? sourceTopicId;
+  final String? topic;
+
+  const PracticeQuestion({
+    required this.id,
+    required this.questionText,
+    required this.options,
+    required this.correctIndex,
+    this.explanation = '',
+    this.sourceTopicId,
+    this.topic,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'questionText': questionText,
+      'options': options,
+      'correctIndex': correctIndex,
+      'explanation': explanation,
+      'sourceTopicId': sourceTopicId,
+      'topic': topic,
+    };
+  }
+
+  factory PracticeQuestion.fromJson(Map<String, dynamic> json) {
+    return PracticeQuestion(
+      id: json['id'] as String,
+      questionText: json['questionText'] as String,
+      options: List<String>.from(json['options'] as List),
+      correctIndex: json['correctIndex'] as int,
+      explanation: json['explanation'] as String? ?? '',
+      sourceTopicId: json['sourceTopicId'] as String? ?? json['originalQuizId'] as String?,
+      topic: json['topic'] as String?,
+    );
+  }
+}
 
 /// The kind of lane a [FeedLane] represents — mirrors ScrollPrep's lane list
 /// (Mixed, per-topic, weak topics, revision vault, bookmarks).
@@ -35,7 +78,7 @@ class FeedLane {
 /// Per-question state within the currently loaded lane: has it been
 /// answered, skipped, or bookmarked.
 class FeedCardState {
-  final DailyChallengeQuestion question;
+  final PracticeQuestion question;
   final int? selectedOption;
   final bool skipped;
   final bool bookmarked;

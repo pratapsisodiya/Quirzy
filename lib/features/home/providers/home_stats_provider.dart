@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../quiz/providers/quiz_providers.dart';
+import '../../feed/services/xp_service.dart';
+import '../../content/providers/content_providers.dart';
 
 class HomeStats {
   final int streak;
@@ -12,11 +13,12 @@ class HomeStats {
 
 final homeStatsProvider = FutureProvider<HomeStats>((ref) async {
   final prefs = await SharedPreferences.getInstance();
-  final dailyQuizService = ref.read(dailyQuizServiceProvider);
+  final xpService = ref.read(xpServiceProvider);
+  final generationLimitService = ref.read(generationLimitServiceProvider);
 
   final streak = prefs.getInt('daily_streak') ?? 0;
-  final quizzesToday = await dailyQuizService.getDailyQuizCount();
-  final xpToday = await dailyQuizService.getXPToday();
+  final quizzesToday = await generationLimitService.getTodayCount();
+  final xpToday = await xpService.getXPToday();
 
   return HomeStats(
     streak: streak,

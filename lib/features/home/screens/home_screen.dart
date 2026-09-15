@@ -8,18 +8,18 @@ import 'package:avatar_glow/avatar_glow.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../l10n/app_localizations.dart';
-import '../../quiz/providers/quiz_providers.dart';
-import '../../quiz/screens/screens.dart';
-import '../../quiz/screens/study_notes_screen.dart';
-import '../../quiz/screens/custom_quiz_creator_screen.dart';
-import '../../quiz/screens/mock_test_setup_screen.dart';
-import '../../quiz/screens/study_material_entry_screen.dart';
+import '../../content/providers/content_providers.dart';
+import '../../content/screens/study_notes_screen.dart';
+import '../../content/screens/add_questions_screen.dart';
+import '../../content/screens/study_material_entry_screen.dart';
+import '../../feed/providers/feed_providers.dart';
+import '../../feed/services/practice_content_service.dart';
+import '../../../shared/providers/providers.dart';
 import '../../../shared/widgets/quirzy_mascot.dart';
-import '../widgets/home_widgets.dart' hide QuizGenerationLoadingScreen;
+import '../widgets/home_widgets.dart';
 import '../../explore/screens/explore_screen.dart';
 import '../widgets/home_cards.dart';
 import '../widgets/home_sections.dart';
-import '../../ai/screens/screens.dart';
 import '../providers/home_stats_provider.dart';
 import '../../../shared/providers/exam_provider.dart';
 import '../../onboarding/screens/exam_selection_screen.dart';
@@ -38,7 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   final FocusNode _inputFocusNode = FocusNode();
   bool _isGenerating = false;
   static const FlutterSecureStorage _storage = FlutterSecureStorage();
-  String _userName = 'Quiz Master';
+  String _userName = 'Practice Champ';
   String? _photoUrl;
 
   // Cached instances for performance
@@ -71,15 +71,30 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     await svc.cancelReEngagement();
     // Schedule re-engagement in case user doesn't come back
     await svc.scheduleReEngagement();
-    // Streak protection at 9 PM if not studied today
+
+    final statsService = ref.read(feedStatsServiceProvider);
+    final revisionService = ref.read(feedRevisionServiceProvider);
+
+    // Streak protection at 9 PM if not studied today (real feed activity).
     final prefs = await SharedPreferences.getInstance();
-    final lastStudy = prefs.getString('last_study_date') ?? '';
-    final today = DateTime.now().toIso8601String().substring(0, 10);
-    final studiedToday = lastStudy == today;
-    final streak = prefs.getInt('current_streak') ?? 0;
+    final streak = prefs.getInt('daily_streak') ?? 0;
+    final todayAnswered = await statsService.getTodayAnsweredCount();
     await svc.scheduleStreakProtection(
       currentStreak: streak,
-      studiedToday: studiedToday,
+      studiedToday: todayAnswered > 0,
+    );
+
+    // Revision due (morning) — real Revision Vault due count.
+    final dueCount = await revisionService.getDueCount();
+    await svc.scheduleSrsReminder(dueCount: dueCount, studyHour: 9, studyMinute: 0);
+
+    // Weekly digest (Sunday) — real practice activity this week.
+    final weekCounts = await statsService.getDailyAnsweredCounts(days: 7);
+    final questionsThisWeek = weekCounts.fold<int>(0, (a, b) => a + b);
+    await svc.scheduleWeeklyDigest(
+      questionsThisWeek: questionsThisWeek,
+      flashcardsReviewed: 0,
+      bestStreak: streak,
     );
   }
 
@@ -361,18 +376,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     int count,
     String difficulty,
   ) async {
-    // Check daily quiz limit before generating
-    final canGenerate = await ref.read(canGenerateQuizProvider.future);
-    
+    // Check daily topic-generation limit before generating
+    final canGenerate = await ref.read(canGenerateTopicProvider.future);
+
     if (!canGenerate) {
       if (mounted) {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Daily Quiz Limit Reached'),
+            title: const Text('Daily Limit Reached'),
             content: const Text(
-              'You\'ve already generated 1 quiz today. Come back tomorrow for your next free quiz, '
-              'or upgrade to Pro for unlimited quizzes!',
+              'You\'ve already generated 1 topic today. Come back tomorrow for your next free topic, '
+              'or upgrade to Pro for unlimited topics!',
             ),
             actions: [
               TextButton(
@@ -390,66 +405,52 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const QuizGenerationLoadingScreen(),
+        builder: (context) => QuizGenerationLoadingScreen(
+          title: 'Building "$topic"...',
+          subtitle: 'AI is crafting practice questions for your feed',
+        ),
       ),
     );
 
     try {
-      final quizService = ref.read(quizServiceProvider);
+      final contentService = ref.read(contentServiceProvider);
       // Pass the count and difficulty to the service
-      final result = await quizService.generateQuiz(
+      final result = await contentService.generateTopicContent(
         topic: topic,
         questionCount: count,
         difficulty: difficulty.toLowerCase(),
       );
 
-      // Record daily quiz usage after successful generation
+      // Record daily generation usage after successful generation
       final quizId = result['quizId']?.toString() ?? result['id']?.toString() ?? '';
-      final dailyQuizService = ref.read(dailyQuizServiceProvider);
-      await dailyQuizService.recordDailyQuizUsage(
-        quizId: quizId,
+      final generationLimitService = ref.read(generationLimitServiceProvider);
+      await generationLimitService.recordUsage(
+        topicId: quizId,
         topic: topic,
       );
+
+      final quizTitle = result['title']?.toString() ?? topic;
+      final questions = List<Map<String, dynamic>>.from(
+        result['questions'] ?? [],
+      );
+
+      // Add the new questions straight to the practice feed's pool and
+      // jump there so they're immediately practicable.
+      await ref.read(practiceContentServiceProvider).addToQuestionPool(
+            questions,
+            topicId: quizId,
+            topic: quizTitle,
+          );
+      await ref.read(feedControllerProvider.notifier).switchToTopic(quizTitle);
 
       if (mounted) {
         // Remove the loading screen
         Navigator.pop(context);
-
         _topicController.clear();
-        final quizTitle = result['title']?.toString() ?? topic;
-        final questions = List<Map<String, dynamic>>.from(
-          result['questions'] ?? [],
-        );
-
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                StartQuizScreen(
-                  quizId: quizId,
-                  quizTitle: quizTitle,
-                  questions: questions,
-                ),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-                  return FadeTransition(
-                    opacity: animation,
-                    child: SlideTransition(
-                      position:
-                          Tween<Offset>(
-                            begin: const Offset(0.02, 0),
-                            end: Offset.zero,
-                          ).animate(
-                            CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOutCubic,
-                            ),
-                          ),
-                      child: child,
-                    ),
-                  );
-                },
-            transitionDuration: const Duration(milliseconds: 300),
+        ref.read(tabIndexProvider.notifier).state = 0; // Practice tab
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added ${questions.length} questions on "$quizTitle" to your feed'),
           ),
         );
       }
@@ -575,33 +576,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                         ),
                                         Container(width: 1, height: 30, color: isDark ? Colors.white12 : Colors.black12),
                                         _buildMiniStat(
-                                          Icons.quiz_rounded,
+                                          Icons.layers_rounded,
                                           '${stats.quizzesToday}',
-                                          'Quizzes',
+                                          'Topics',
                                           primaryColor,
                                           isDark,
-                                        ),
-                                        Container(width: 1, height: 30, color: isDark ? Colors.white12 : Colors.black12),
-                                        GestureDetector(
-                                          onTap: () {
-                                            HapticFeedback.lightImpact();
-                                            Navigator.push(context, MaterialPageRoute(builder: (_) => const InsightsScreen()));
-                                          },
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              gradient: const LinearGradient(colors: [Color(0xFF8B5CF6), Color(0xFFEC4899)]),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(Icons.auto_awesome, color: Colors.white, size: 14),
-                                                const SizedBox(width: 4),
-                                                Text('AI', style: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white)),
-                                              ],
-                                            ),
-                                          ),
                                         ),
                                       ],
                                     ),
@@ -613,7 +592,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                         Container(width: 1, height: 30, color: isDark ? Colors.white12 : Colors.black12),
                                         _buildMiniStat(Icons.bolt_rounded, '0', 'XP Today', const Color(0xFF10B981), isDark),
                                         Container(width: 1, height: 30, color: isDark ? Colors.white12 : Colors.black12),
-                                        _buildMiniStat(Icons.quiz_rounded, '0', 'Quizzes', primaryColor, isDark),
+                                        _buildMiniStat(Icons.layers_rounded, '0', 'Topics', primaryColor, isDark),
                                       ],
                                     ),
                                   );
@@ -760,14 +739,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             childAspectRatio: 1.15,
                             children: [
                               CategoryCard(
-                                title: 'Mock Test',
-                                icon: Icons.assignment_turned_in_rounded,
+                                title: 'Add Questions',
+                                icon: Icons.edit_note_rounded,
                                 color: const Color(0xFFEF4444),
-                                subtitle: 'JEE, NEET, CAT...',
+                                subtitle: 'Write your own',
                                 isDark: isDark,
                                 onTap: () {
                                   HapticFeedback.lightImpact();
-                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MockTestSetupScreen()));
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AddQuestionsScreen()));
                                 },
                               ),
                               CategoryCard(
@@ -782,7 +761,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                 },
                               ),
                               CategoryCard(
-                                title: 'AI Quiz',
+                                title: 'AI Topic',
                                 icon: Icons.auto_awesome_rounded,
                                 color: const Color(0xFF5B13EC),
                                 subtitle: 'Any Topic',
@@ -849,7 +828,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       Navigator.push(context, MaterialPageRoute(builder: (_) => const StudyNotesScreen()));
     } else if (label == 'Create') {
       HapticFeedback.lightImpact();
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const CustomQuizCreatorScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const AddQuestionsScreen()));
     }
   }
 
@@ -859,7 +838,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-          'Create Custom Quiz ✨',
+          'Add a Practice Topic ✨',
           style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold),
         ),
         content: TextField(

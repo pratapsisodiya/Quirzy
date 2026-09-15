@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../shared/theme/quiz_theme.dart';
-import '../../quiz/providers/daily_challenge_provider.dart';
+import '../../../shared/theme/practice_theme.dart';
+import '../models/feed_models.dart';
 import '../providers/feed_providers.dart';
 
 /// Long-press secondary menu (PRD §5.2): report a problem, rate the
 /// question's difficulty, or mute its topic. All effects are local and
 /// take hold from the next lane load onward.
 class LongPressMenuSheet extends ConsumerWidget {
-  final DailyChallengeQuestion question;
+  final PracticeQuestion question;
 
   const LongPressMenuSheet({super.key, required this.question});
 
-  static Future<void> show(BuildContext context, DailyChallengeQuestion question) {
+  static Future<void> show(BuildContext context, PracticeQuestion question) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -40,7 +40,7 @@ class LongPressMenuSheet extends ConsumerWidget {
     return SafeArea(
       child: Container(
         decoration: BoxDecoration(
-          color: isDark ? QuizTheme.surfaceDark : QuizTheme.surfaceLight,
+          color: isDark ? PracticeTheme.surfaceDark : PracticeTheme.surfaceLight,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
@@ -59,7 +59,7 @@ class LongPressMenuSheet extends ConsumerWidget {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.error_outline_rounded, color: QuizTheme.error),
+              leading: const Icon(Icons.error_outline_rounded, color: PracticeTheme.error),
               title: Text('Report a problem', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
               subtitle: const Text('Wrong answer key, typo, or bad question'),
               onTap: () {
@@ -68,7 +68,7 @@ class LongPressMenuSheet extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.thumb_up_rounded, color: QuizTheme.success),
+              leading: const Icon(Icons.thumb_up_rounded, color: PracticeTheme.success),
               title: Text('Too easy', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
               onTap: () {
                 controller.markTooEasy(question);
@@ -76,7 +76,7 @@ class LongPressMenuSheet extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.warning_rounded, color: QuizTheme.warning),
+              leading: const Icon(Icons.warning_rounded, color: PracticeTheme.warning),
               title: Text('Too hard', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
               onTap: () {
                 controller.markTooHard(question);
@@ -84,7 +84,7 @@ class LongPressMenuSheet extends ConsumerWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.block_rounded, color: QuizTheme.primary),
+              leading: const Icon(Icons.block_rounded, color: PracticeTheme.primary),
               title: Text('Mute "$topic"', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600)),
               onTap: () {
                 controller.muteTopic(topic);

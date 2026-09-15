@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:appwrite/appwrite.dart';
-import '../../quiz/services/services.dart'; // Reuse AppwriteClient and Config
+import '../../../shared/appwrite/appwrite_client.dart';
 
 /// Flashcard Service using Appwrite
 class FlashcardService {

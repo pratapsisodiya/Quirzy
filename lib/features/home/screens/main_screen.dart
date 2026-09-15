@@ -7,9 +7,8 @@ import '../../feed/screens/feed_screen.dart';
 import '../../flashcards/screens/screens.dart';
 import '../../profile/screens/screens.dart';
 import '../../onboarding/screens/screens.dart';
-import '../../quiz/screens/mock_test_setup_screen.dart';
+import '../../progress/screens/my_prep_screen.dart';
 
-import '../../../shared/services/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared/widgets/quirzy_navigation_bar.dart';
@@ -31,7 +30,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   Future<void> _checkOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // 1. Exam Selection
     if (prefs.getString('selected_exam') == null) {
       if (mounted) {
         await Navigator.of(
@@ -39,18 +37,13 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         ).push(MaterialPageRoute(builder: (_) => const ExamSelectionScreen()));
       }
     }
-
-    // 3. Notifications
-    NotificationService().init();
-    NotificationService().scheduleHourlyNotification();
   }
 
   // Screens list — Practice (the ScrollPrep-style feed) is the default tab.
   List<Widget> get _screens => const [
     RepaintBoundary(child: FeedScreen()),
     RepaintBoundary(child: HomeScreen()),
-    RepaintBoundary(child: MockTestSetupScreen()),
-    RepaintBoundary(child: HistoryScreen()),
+    RepaintBoundary(child: MyPrepScreen()),
     RepaintBoundary(child: FlashcardsScreen()),
     RepaintBoundary(child: ProfileSettingsScreen()),
   ];

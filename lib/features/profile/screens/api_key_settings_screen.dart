@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// API Key Settings Screen
-/// Allows users to input their own Gemini API key for quiz/flashcard generation
+/// Allows users to input their own Gemini API key for topic/flashcard generation
 class ApiKeySettingsScreen extends ConsumerStatefulWidget {
   const ApiKeySettingsScreen({super.key});
 
@@ -167,7 +167,7 @@ class _ApiKeySettingsScreenState extends ConsumerState<ApiKeySettingsScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Add your Gemini API key for unlimited quiz and flashcard generation.',
+                                  'Add your Gemini API key for unlimited topic and flashcard generation.',
                                   style: GoogleFonts.poppins(
                                     fontSize: 13,
                                     color: isDark

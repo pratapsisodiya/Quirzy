@@ -122,7 +122,7 @@ class _NotificationSettingsScreenState
                 const SizedBox(height: 20),
 
                 _section(
-                  'Flashcards & SRS',
+                  'Revision',
                   isDark,
                   surfaceColor,
                   textMain,
@@ -131,9 +131,9 @@ class _NotificationSettingsScreenState
                     _channelTile(
                       icon: Icons.style_rounded,
                       iconColor: const Color(0xFF8B5CF6),
-                      title: 'SRS Due Reminders',
+                      title: 'Revision Due Reminders',
                       subtitle:
-                          'Tells you how many cards are due and estimated time',
+                          'Tells you how many practice questions are due and estimated time',
                       prefKey: 'notif_srs',
                       isDark: isDark,
                       surfaceColor: surfaceColor,
@@ -189,20 +189,8 @@ class _NotificationSettingsScreenState
                       iconColor: const Color(0xFF3B82F6),
                       title: 'Weekly Digest',
                       subtitle:
-                          'Sunday morning: quizzes done, cards reviewed, streak',
+                          'Sunday morning: questions practiced, streak',
                       prefKey: 'notif_weekly_digest',
-                      isDark: isDark,
-                      surfaceColor: surfaceColor,
-                      textMain: textMain,
-                      textSub: textSub,
-                    ),
-                    _channelTile(
-                      icon: Icons.assignment_turned_in_rounded,
-                      iconColor: const Color(0xFFF59E0B),
-                      title: 'Mock Test Nudge',
-                      subtitle:
-                          'Reminds you to take a mock test if it\'s been 7+ days',
-                      prefKey: 'notif_mock_test',
                       isDark: isDark,
                       surfaceColor: surfaceColor,
                       textMain: textMain,

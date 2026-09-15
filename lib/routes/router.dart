@@ -8,14 +8,12 @@ import '../shared/widgets/splash_screen.dart';
 // Screens
 import '../features/auth/screens/screens.dart';
 import '../features/home/screens/screens.dart';
-import '../features/quiz/screens/screens.dart';
+import '../features/content/screens/screens.dart';
 import '../features/flashcards/screens/screens.dart';
 import '../features/profile/screens/screens.dart';
-import '../features/quiz/screens/analytics_dashboard_screen.dart';
-import '../features/quiz/screens/study_notes_screen.dart';
-import '../features/quiz/screens/custom_quiz_creator_screen.dart';
-import '../features/quiz/screens/mock_test_setup_screen.dart';
-import '../features/quiz/screens/study_material_entry_screen.dart';
+import '../features/content/screens/study_notes_screen.dart';
+import '../features/content/screens/add_questions_screen.dart';
+import '../features/content/screens/study_material_entry_screen.dart';
 import '../features/profile/screens/notification_settings_screen.dart';
 
 class AuthListenator extends ChangeNotifier {
@@ -82,28 +80,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const MainScreen(),
       ),
       GoRoute(
-        path: AppRoutes.quiz,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return StartQuizScreen(
-            quizTitle: extra?['quizTitle'] ?? 'Quiz',
-            quizId: extra?['quizId'] ?? '',
-            questions:
-                (extra?['questions'] as List<dynamic>?)
-                    ?.map((e) => e as Map<String, dynamic>)
-                    .toList() ??
-                [],
-            difficulty: extra?['difficulty'],
-          );
-        },
-      ),
-      GoRoute(
         path: AppRoutes.flashcards,
         builder: (context, state) => const FlashcardsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.history,
-        builder: (context, state) => const HistoryScreen(),
       ),
       GoRoute(
         path: AppRoutes.settings,
@@ -118,20 +96,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ApiKeySettingsScreen(),
       ),
       GoRoute(
-        path: AppRoutes.analytics,
-        builder: (context, state) => const AnalyticsDashboardScreen(),
-      ),
-      GoRoute(
         path: AppRoutes.studyNotes,
         builder: (context, state) => const StudyNotesScreen(),
       ),
       GoRoute(
         path: AppRoutes.customQuizCreator,
-        builder: (context, state) => const CustomQuizCreatorScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.mockTestSetup,
-        builder: (context, state) => const MockTestSetupScreen(),
+        builder: (context, state) => const AddQuestionsScreen(),
       ),
       GoRoute(
         path: AppRoutes.studyMaterialEntry,

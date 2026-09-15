@@ -113,7 +113,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get enterTopicHint => 'एक विषय दर्ज करें (जैसे, \'प्रकाश संश्लेषण\')';
 
   @override
-  String get generateQuizButton => 'क्विज़ बनाएं';
+  String get generateQuizButton => 'अभ्यास विषय जोड़ें';
 
   @override
   String get listening => 'सुन रहा हूँ...';
@@ -131,7 +131,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get enterTopicDeepDive => 'गहराई में जाने के लिए एक विषय दर्ज करें!';
 
   @override
-  String get configureQuizTitle => 'क्विज़ कॉन्फ़िगर करें';
+  String get configureQuizTitle => 'विषय कॉन्फ़िगर करें';
 
   @override
   String get topicLabel => 'विषय';
